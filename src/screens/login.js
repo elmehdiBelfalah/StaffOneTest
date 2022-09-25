@@ -59,7 +59,7 @@ const Login = ({navigation}) => {
         contentContainerStyle={{marginHorizontal: 10, paddingBottom: 50}}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View>
-            <Text style={{ fontSize: 22, marginVertical: 14}}>Vos informations personnelles</Text>
+            <Text style={{ fontSize: 22, marginVertical: 14}}>Bienvenue chez StaffOne</Text>
       
        
 
@@ -67,6 +67,7 @@ const Login = ({navigation}) => {
               control={control}
               rules={{
                 required: true,
+                pattern: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/ 
               }}
               render={({field: {onChange, onBlur, value}}) => (
                 <TextInput
@@ -79,8 +80,12 @@ const Login = ({navigation}) => {
               )}
               name="email"
             />
-            {errors.email && <Text style={styles.errorText}>Email est requis.</Text>}
-
+            {errors.email && errors.email.type == 'required'  && (
+              <Text style={styles.errorText}>Email est requis.</Text>
+            )}
+            {errors.email && errors.email.type == 'pattern' && (
+              <Text style={styles.errorText}>Email invalide.</Text>
+            )}
             <Controller
               control={control}
               rules={{
@@ -101,11 +106,15 @@ const Login = ({navigation}) => {
             />
             {errors.password && <Text style={styles.errorText}>Password est requis.</Text>}
 
-            <Button title="Enregistrer" onPress={handleSubmit(onSubmit)} />
+            <TouchableOpacity style={{
+            padding:10 , backgroundColor:'#2596be' , borderRadius:10
+          }} onPress={handleSubmit(onSubmit)} >
+                <Text style={{textAlign:'center' , color:'#fff'}}>Se connecter</Text> 
+            </TouchableOpacity>
           </View>
         </TouchableWithoutFeedback>
         <TouchableOpacity onPress={()=>{redirect(navigation,'register')}}>
-        <Text style={styles.redirect}>Vous etes pas inscrit ? s'inscrire !</Text>
+        <Text style={styles.redirect}>Vous êtes pas inscrit ? s'inscrire !</Text>
       </TouchableOpacity>
       </ScrollView>
     </>

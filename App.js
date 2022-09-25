@@ -31,7 +31,7 @@ const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator >
-        <Stack.Screen name="login" component={Login} options={{ title: 'Se connecter'}} />
+        <Stack.Screen name="login" component={Login} options={{ title: 'Se Connecter'}} />
         <Stack.Screen name="register" component={Register} options={{ title: 'Inscription'}} />
         <Stack.Screen name="profile"  component={Profile} options={{ title: 'Home',   headerBackVisible:false }} />
       </Stack.Navigator>

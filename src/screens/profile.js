@@ -71,7 +71,6 @@ const Profile = (props) => {
         const {status} = res.data.data;
         if (status == 'valide') {
           alert('Success');
-          redirect(props.navigation,'login')
         }
       })
       .catch(res => {
@@ -204,6 +203,8 @@ const Profile = (props) => {
             control={control}
             rules={{
               required: true,
+              pattern: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/ 
+ 
             }}
             render={({field: {onChange, onBlur, value}}) => (
               <TextInput
@@ -216,9 +217,12 @@ const Profile = (props) => {
             )}
             name="email"
           />
-          {errors.email && (
-            <Text style={styles.errorText}>Email est requis.</Text>
-          )}
+          {errors.email && errors.email.type == 'required'  && (
+              <Text style={styles.errorText}>Email est requis.</Text>
+            )}
+            {errors.email && errors.email.type == 'pattern' && (
+              <Text style={styles.errorText}>Email invalide.</Text>
+            )}
 
           {/* <Controller
               control={control}
@@ -299,11 +303,15 @@ const Profile = (props) => {
               <Text>Femme</Text>
             </TouchableOpacity>
           </View>
-          <Button title="Enregistrer" onPress={handleSubmit(onSubmit)} />
+          <TouchableOpacity style={{
+            padding:10 , backgroundColor:'#2596be' , borderRadius:10
+          }} onPress={handleSubmit(onSubmit)} >
+                <Text style={{textAlign:'center' , color:'#fff'}}>Enregistrer</Text> 
+            </TouchableOpacity>
         </View>
       </TouchableWithoutFeedback>
       <TouchableOpacity onPress={()=>{redirect(props.navigation,'login')  }}>
-        <Text style={styles.redirect}>se deconnecter !</Text>
+          <Text style={styles.redirect}>se deconnecter !</Text> 
       </TouchableOpacity>
     </ScrollView>
   );
