@@ -10,17 +10,21 @@ import {
   TextInput,
   View,
   Image,
+  ActivityIndicator,
 } from 'react-native';
 import {useForm, Controller} from 'react-hook-form';
 import {RadioButton} from 'react-native-paper';
+import {launchImageLibrary} from 'react-native-image-picker';
 import axios from 'axios';
-import {url} from '../config';
+import {redirect, styles, url, urlPhotos} from '../config';
 
-const Profile = (props, navigation) => {
+const Profile = (props) => {
+  const [loadingPhoto, setLoadingPhoto] = useState(true);
+  const [urlPhoto, setUrlPhoto] = useState();
   const [user, setUser] = useState({});
   useEffect(() => {
     const {user} = props.route.params;
-    console.log(user);
+
     reset({
       id: user.id,
       firstName: user.first_name,
@@ -30,9 +34,13 @@ const Profile = (props, navigation) => {
       address: user.adresse,
     });
     setGender(user?.civilite);
+    setUrlPhoto(urlPhotos+'/'+user.photo)
+    setUser(user)
+  console.log(urlPhoto) 
   }, []);
 
-  useEffect(() => {}, [user]);
+  useEffect(() => {
+  }, [user]);
 
   const {
     control,
@@ -63,6 +71,7 @@ const Profile = (props, navigation) => {
         const {status} = res.data.data;
         if (status == 'valide') {
           alert('Success');
+          redirect(props.navigation,'login')
         }
       })
       .catch(res => {
@@ -70,17 +79,75 @@ const Profile = (props, navigation) => {
         alert(status);
       });
   };
+  const uploadProfileImage = () => {
+    launchImageLibrary(
+      {
+        title: 'AppMobile',
+        takePhotoButtonTitle: 'Prendre une photo avec votre appareil photo',
+        chooseFromLibraryButtonTitle: 'Chosir une photo de la bibliothèque',
+        cancelButtonTitle: 'Annuler',
+        noData: true,
+        mediaType: 'photo',
+        quality: 0.7,
+        allowsEditing: true,
+      },
+      async response => {
+        console.log(response);
+        if (response.didCancel) {
+          //   console.log('Error: User cancelled image picker');
+        } else if (response.error) {
+          //   console.log('ImagePicker Error: ' + response.error);
+        } else if (response.customButton) {
+          //   console.log('User tapped custom button: ' + response.customButton);
+        } else {
+          console.log(response.assets[0].uri);
+          let imageData = new FormData();
+          imageData.append('file', {
+            type: 'image/jpg',
+            uri: response.assets[0].uri,
+            name: 'uploadimagetmp.jpg',
+          });
+          imageData.append('id', user.id);
+          console.log(imageData);
+          setLoadingPhoto(!loadingPhoto)
+          fetch(`${url}/api_photo_profil.php`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+            body: imageData,
+          })
+            .then(res => res.json())
+            .then(responseJson => {
+              setUrlPhoto(response.assets[0].uri);
+              alert("success")
+              setLoadingPhoto(!loadingPhoto)
+              console.log(JSON.stringify(responseJson));
+            })
+            .catch(error => {
+              console.error(error);
+            });
+        }
+      },
+    );
+  };
   return (
     <ScrollView
       contentContainerStyle={{marginHorizontal: 10, paddingBottom: 50}}>
-         <TouchableOpacity onPress={uploadProfileImage}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View>
+          <Text style={{fontSize: 22, marginVertical: 14}}>
+            Vos informations personnelles
+          </Text>
+          <TouchableOpacity onPress={uploadProfileImage}>
         {loadingPhoto && <ActivityIndicator />}
         <View
           style={{
-            alignItems: 'center',
+          alignItems: 'center',
             justifyContent: 'center',
             width: loadingPhoto ? 0 : '100%',
             height: loadingPhoto ? 0 : 100,
+            marginBottom:20
           }}>
           <Image
             source={{
@@ -88,16 +155,11 @@ const Profile = (props, navigation) => {
             }}
             onLoadStart={() => setLoadingPhoto(true)}
             onLoad={() => setLoadingPhoto(false)}
-            style={styles.Pimage}
+            style={{width:100 , height:100 , borderRadius:100/2}}
             onPress={() => console.log('hello')}
           />
         </View>
       </TouchableOpacity>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View>
-          <Text style={{fontSize: 22, marginVertical: 14}}>
-            Vos informations personnelles
-          </Text>
           <Controller
             control={control}
             rules={{
@@ -240,44 +302,12 @@ const Profile = (props, navigation) => {
           <Button title="Enregistrer" onPress={handleSubmit(onSubmit)} />
         </View>
       </TouchableWithoutFeedback>
+      <TouchableOpacity onPress={()=>{redirect(props.navigation,'login')  }}>
+        <Text style={styles.redirect}>se deconnecter !</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 };
-const styles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  input: {
-    borderWidth: 0.4,
-    borderColor: '#ccc',
-    borderRadius: 6,
-    paddingLeft: 8,
-    marginBottom: 8,
-  },
-  errorText: {
-    color: 'red',
-    marginBottom: 8,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-  inputStyle: {
-    borderColor: 'gray',
-    borderWidth: 1,
-    borderRadius: 5,
-    marginBottom: 6,
-  },
-});
+
 
 export default Profile;

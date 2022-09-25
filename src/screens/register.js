@@ -3,9 +3,9 @@ import {Button, StyleSheet,ScrollView, TouchableWithoutFeedback, Keyboard, Touch
 import {RadioButton} from 'react-native-paper';
 import {useForm, Controller} from 'react-hook-form';
 import axios from 'axios';
-import {url} from '../config';
+import {redirect, styles, url} from '../config';
 
-const Register = () => {
+const Register = ({navigation}) => {
   const {
     control,
     handleSubmit,
@@ -33,11 +33,13 @@ const Register = () => {
       const {status} = res.data.data;
       if (status == "valide") {
         alert('Success')
+        redirect(navigation,'login')
       }
     }).catch(res => {
       const {status} = res.response.data.data;
       alert(status);
     });
+
   }
 
 
@@ -114,6 +116,7 @@ const Register = () => {
                   onChangeText={onChange}
                   value={value}
                   placeholder="Password"
+                  secureTextEntry={true}
                 />
               )}
               name="password"
@@ -132,6 +135,7 @@ const Register = () => {
                   onChangeText={onChange}
                   value={value}
                   placeholder="Confirm Password"
+                  secureTextEntry={true}
                 />
               )}
               name="confirmPassword"
@@ -199,47 +203,15 @@ const Register = () => {
             <Button title="Enregistrer" onPress={handleSubmit(onSubmit)} />
           </View>
         </TouchableWithoutFeedback>
+        <TouchableOpacity onPress={()=>{redirect(navigation,'login')}}>
+        <Text style={styles.redirect}>Vous etes deja inscrit ? se connecter !</Text>
+      </TouchableOpacity>
       </ScrollView>
     </>
   );
 };
 
-const styles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom:10,
-  },
-  input: {
-    borderWidth: 0.4,
-    borderColor: '#ccc',
-    borderRadius: 6,
-    paddingLeft: 8,
-    marginBottom: 8,
-  },
-  errorText: {
-    color: 'red',
-    marginBottom: 8,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-  inputStyle: {
-    borderColor: 'gray',
-    borderWidth: 1,
-    borderRadius: 5,
-    marginBottom: 6,
-  },
-});
+
 export default Register;
 
 // const styles = StyleSheet.

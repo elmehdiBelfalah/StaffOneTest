@@ -1,16 +1,26 @@
-import React from 'react';
+
+import React, { useEffect, useState } from 'react';
 import {Button, StyleSheet,ScrollView, TouchableWithoutFeedback, Keyboard, TouchableOpacity, Text, TextInput, View} from 'react-native';
 import {RadioButton} from 'react-native-paper';
 import {useForm, Controller} from 'react-hook-form';
 import axios from 'axios';
-import {url} from '../config';
+import {redirect, styles, url} from '../config';
 
 
 const Login = ({navigation}) => {
+  const [email,setEmail]=useState('');
+  const[password,setPassword]=useState('');
+  // useEffect(() => {
+  //   console.log('ffff')
+
+
+  // }, []);
+  
   const {
     control,
     handleSubmit,
     formState: {errors},
+    reset
   } = useForm({
     defaultValues: {
      
@@ -25,10 +35,12 @@ const Login = ({navigation}) => {
       ...data,
     };
     axios.post(url + "api_login.php", dataForm).then(res => {
+       reset({email:'', password:''})
         const {status} = res.data.data;
         const {user} = res.data.data;
         if (status == "valide") {
         console.log(user);
+       
        navigation.navigate('profile',{user});
     }
     }).catch(res => {
@@ -36,9 +48,9 @@ const Login = ({navigation}) => {
       alert(status);
     });
   }
-//   const redirect = () => {
-//     navigation.navigate('home');
-//   };
+
+
+
 
 
   return (
@@ -81,6 +93,8 @@ const Login = ({navigation}) => {
                   onChangeText={onChange}
                   value={value}
                   placeholder="Password"
+                  secureTextEntry={true}
+                  
                 />
               )}
               name="password"
@@ -90,47 +104,15 @@ const Login = ({navigation}) => {
             <Button title="Enregistrer" onPress={handleSubmit(onSubmit)} />
           </View>
         </TouchableWithoutFeedback>
+        <TouchableOpacity onPress={()=>{redirect(navigation,'register')}}>
+        <Text style={styles.redirect}>Vous etes pas inscrit ? s'inscrire !</Text>
+      </TouchableOpacity>
       </ScrollView>
     </>
   );
 };
 
-const styles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom:10,
-  },
-  input: {
-    borderWidth: 0.4,
-    borderColor: '#ccc',
-    borderRadius: 6,
-    paddingLeft: 8,
-    marginBottom: 8,
-  },
-  errorText: {
-    color: 'red',
-    marginBottom: 8,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-  inputStyle: {
-    borderColor: 'gray',
-    borderWidth: 1,
-    borderRadius: 5,
-    marginBottom: 6,
-  },
-});
+
 export default Login;
 
 // const styles = StyleSheet.
